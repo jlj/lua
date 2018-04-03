@@ -664,6 +664,46 @@ lua_Integer luaV_shiftl (lua_Integer x, lua_Integer y) {
   }
 }
 
+static int tableiterator (lua_State *L) {
+  luaD_checkstack(L, 2);
+  if (lua_next(L, 1))
+    return 2;
+  else {
+    lua_pushnil(L);
+    return 1;
+  }
+}
+
+static void tryforgenTM(lua_State *L, StkId ra)
+{
+  const TValue *object =  s2v(ra);
+  const TValue *tm = luaT_gettmbyobj(L, object, TM_FORGEN);
+  ptrdiff_t rar = savestack(L, ra);
+  if (ttisfunction(tm)) {
+    StkId func = L->top;
+    setobj2s(L, func, tm);     /* forgen TM function (assume EXTRA_STACK) */
+    setobj2s(L, func + 1, object);  /* object (1st exp) */
+    setobjs2s(L, func + 2, ra + 1); /* 2nd exp */
+    setobjs2s(L, func + 3, ra + 2); /* 3nd exp */
+    L->top += 4;
+    /* metamethod may yield only when called from Lua code */
+    if (isLuacode(L->ci))
+      luaD_call(L, func, 3);
+    else
+      luaD_callnoyield(L, func, 3);
+    ra = restorestack(L, rar);  /* previous call may change stack */
+    setobjs2s(L, ra, L->top - 3);
+    setobjs2s(L, ra + 1, L->top - 2);
+    setobjs2s(L, ra + 2, L->top - 1);
+    L->top -= 3;
+  }
+  else if (ttisnil(tm) && ttistable(object)) {
+    /* table without forgen TM: use the default table iterator */
+    setnilvalue(s2v(ra + 2));
+    setobj2s(L, ra + 1, object)
+    setfvalue(s2v(ra), tableiterator);
+  }
+}
 
 /*
 ** check whether cached closure in prototype 'p' may be reused, that is,
@@ -1752,6 +1792,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
           pc -= GETARG_Bx(i);  /* jump back */
         }
         vmbreak;
+      }
+      vmcase(OP_TFORPREP) {
+        Protect(tryforgenTM(L, ra));
+        ci->u.l.savedpc += GETARG_sBx(i);
       }
       vmcase(OP_SETLIST) {
         int n = GETARG_B(i);

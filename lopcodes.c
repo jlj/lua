@@ -92,6 +92,7 @@ LUAI_DDEF const char *const luaP_opnames[NUM_OPCODES+1] = {
   "FORPREP",
   "TFORCALL",
   "TFORLOOP",
+  "TFORPREP",
   "SETLIST",
   "CLOSURE",
   "VARARG",
@@ -177,6 +178,7 @@ LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
  ,opmode(0, 0, 0, 1, iABx)		/* OP_FORPREP */
  ,opmode(0, 0, 0, 0, iABC)		/* OP_TFORCALL */
  ,opmode(0, 0, 0, 1, iABx)		/* OP_TFORLOOP */
+ ,opmode(0, 0, 0, 1, iABx)      /* OP_TFORPREP */
  ,opmode(0, 1, 0, 0, iABC)		/* OP_SETLIST */
  ,opmode(0, 0, 0, 1, iABx)		/* OP_CLOSURE */
  ,opmode(1, 0, 0, 1, iABC)		/* OP_VARARG */

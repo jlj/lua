@@ -286,7 +286,8 @@ OP_FORPREP,/*	A Bx	R(A)-=R(A+2); pc+=Bx				*/
 
 OP_TFORCALL,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));	*/
 OP_TFORLOOP,/*	A Bx	if R(A+1) ~= nil then { R(A)=R(A+1); pc -= Bx }	*/
-
+OP_TFORPREP,/*  A sBx  if TM(R(A), TM_FORGEN) is function then { R(A), R(A+1), R(A+2) = TM(R(A), TM_FORGEN)(R(A), R(A+1), R(A+2)) }; pc += sBx */
+    
 OP_SETLIST,/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	*/
 
 OP_CLOSURE,/*	A Bx	R(A) := closure(KPROTO[Bx])			*/

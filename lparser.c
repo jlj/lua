@@ -1364,7 +1364,7 @@ static void forbody (LexState *ls, int base, int line, int nvars, int kind) {
   checknext(ls, TK_DO);
   prep = (kind == 0) ? luaK_codeABx(fs, OP_FORPREP, base, 0)
        : (kind == 1) ? luaK_codeABx(fs, OP_FORPREP1, base, 0)
-       : luaK_jump(fs);
+       : luaK_codeABx(fs, OP_TFORPREP, base, 0);
   enterblock(fs, &bl, 0);  /* scope for declared variables */
   adjustlocalvars(ls, nvars);
   luaK_reserveregs(fs, nvars);
